@@ -11,16 +11,19 @@ namespace structures {
 
 class Trie {
  public:
-  Trie(); //Novo Trie
+  Trie(); //
   void inserir(std::string word, int index, int length);
-  std::pair<int, int> procurar(std::string word);
+  int getIndex(std::string word);
+  int getLength(std::string word);
   int n_prefixo(std::string word);
   int n_children();
   int n_palavras();
 
  private:
     Trie* children[ALPHABET_SIZE];
-    int index{0}, length{0};
+    int index;
+    int length;
+    bool leaf;
 };
 
 }  // namespace structures
@@ -32,6 +35,9 @@ class Trie {
 //  são os nodos filhos são  nulos
 
 structures::Trie::Trie() {
+    index = 0;
+    length = 0;
+    leaf = false;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         children[i] = nullptr;
     }
@@ -44,41 +50,43 @@ void structures::Trie::inserir(std::string word, int index, int length) {
     auto current = this;
     for (int i = 0; i < word.length(); i++) {
         int position = word[i] - 'a';
-        if (!current->children[position]) {
+        if (current->children[position] == NULL) {
             current->children[position] = new Trie;
         }
         current = current->children[position];
     }
     current->index = index;
     current->length = length;
+    current->leaf = true;
 }
 
-// Vai procurar uma palavra na árvore, word é a palavra a ser procurada
-std::pair<int, int> structures::Trie::procurar(std::string word) {
-    //indica se a palavra pertence ao dicionario ou ou se é um prefixo
-    std::pair<int, int> pair; 
-// Caso a palavra pertença ao dicionário, o primeiro valor do par representa 
-// a posição da palavra enquanto o segundo  representa o comprimeto da linha.
-  
+int structures::Trie::getIndex(std::string word) {
     auto current = this;
     for (int i = 0; i < word.length(); i++) {
         int position = word[i] - 'a';
-        if (!current->children[position]) {
-            pair.first = -1;
-            pair.second = -1;
-            return pair;
+        if (current->children[position] == nullptr) {
+            return -1;
         }
         current = current->children[position];
     }
-    if (current && current->length == 0) {
-        pair.first = 0;
-        pair.second = 0;
-        return pair;
-    }
-    pair.first = current->index;
-    pair.second = current->length;
-    return pair;
+    
+    return current->index;
 }
+
+int structures::Trie::getLength(std::string word) {
+    auto current = this;
+    for (int i = 0; i < word.length(); i++) {
+        int position = word[i] - 'a';
+        if (current->children[position] == nullptr) {
+            return -1;
+        }
+        current = current->children[position];
+    }
+    
+    return current->length;
+}
+
+
 // Conta o número de vezes que a palavra é prefixo, 
 //o word é a palavra a ser contada, 
 //ele ira retornar um número inteiro com as vezes que a palavra foi prefixo
@@ -88,16 +96,17 @@ int structures::Trie::n_prefixo(std::string word) {
     int n_prefix = 0;
     for (int i = 0; i < word.length(); i++) {
         int position = word[i] - 'a';
-        if (!current->children[position]) {
+        if (current->children[position] == NULL) {
             break;
         }
         current = current->children[position];
     }
     if (current) {
-        if (current->length != 0) {
-            n_prefix++;
+        if (current->leaf) {
+            n_prefix = n_prefix + 1;
+        } else {
+            n_prefix += current->n_palavras();
         }
-        n_prefix += current->n_palavras();
     }
     return n_prefix;
 }
@@ -121,9 +130,12 @@ int structures::Trie::n_palavras() {
     int n_words = 0;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         if (children[i]) {
-            if (children[i]->length != 0) {
+            if (children[i]->leaf) {
                 n_words++;
+            } else {
+                n_words += children[i]->n_palavras();
             }
-            n_words += children[i]->n_palavras();
         }
     }
+    return n_words;
+}
