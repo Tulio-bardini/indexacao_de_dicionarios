@@ -51,7 +51,7 @@ int main() {
         if (count > 0) {
             cout << word << " is prefix of " << count << " words" << endl;
 
-            if (count == 1) {
+            if (trie.getLength(word) > 0) {
                 cout << word << " is at (" << trie.getIndex(word) << "," << trie.getLength(word) << ")" << endl;
             }
 
