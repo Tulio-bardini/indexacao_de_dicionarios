@@ -2,22 +2,22 @@
 
 #ifndef STRUCTURES_TRIE_H
 #define STRUCTURES_TRIE_H
+#define ALPHABET_SIZE 26
 
 #include <string>
 
-#define ALPHABET_SIZE 26
 
 namespace structures { 
 
 class Trie {
  public:
   Trie(); //
-  void inserir(std::string word, int index, int length);
+  void insert(std::string word, int index, int length);
   int getIndex(std::string word);
   int getLength(std::string word);
-  int n_prefixo(std::string word);
-  int n_children();
-  int n_palavras();
+  int prefixCounter(std::string word);
+  int childrenCounter();
+  int wordCounter();
 
  private:
     Trie* children[ALPHABET_SIZE];
@@ -46,7 +46,7 @@ structures::Trie::Trie() {
 // o index a posição no dicionario da palavra a ser inserida, e o lenght o 
 //comprimento da linha do dicionario que possui a palavra a ser inserida.
 
-void structures::Trie::inserir(std::string word, int index, int length) {
+void structures::Trie::insert(std::string word, int index, int length) {
     auto current = this;
     for (int i = 0; i < word.length(); i++) {
         int position = word[i] - 'a';
@@ -91,51 +91,51 @@ int structures::Trie::getLength(std::string word) {
 //o word é a palavra a ser contada, 
 //ele ira retornar um número inteiro com as vezes que a palavra foi prefixo
 
-int structures::Trie::n_prefixo(std::string word) {
+int structures::Trie::prefixCounter(std::string word) {
     auto current = this;
-    int n_prefix = 0;
+    int prefixCount = 0;
     for (int i = 0; i < word.length(); i++) {
         int position = word[i] - 'a';
         if (current->children[position] == NULL) {
-            break;
+            return 0;
         }
         current = current->children[position];
     }
     if (current) {
         if (current->leaf) {
-            n_prefix = n_prefix + 1;
+            prefixCount++;
         } else {
-            n_prefix += current->n_palavras();
+            prefixCount += current->wordCounter();
         }
     }
-    return n_prefix;
+    return prefixCount;
 }
 
 //  Conta o número de filhos, e retorna um inteiro sendo ele o número de filhos
 
-int structures::Trie::n_children() {
+int structures::Trie::childrenCounter() {
     auto current = this;
-    int n_children = 0;
+    int childrenCount = 0;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         if (current->children[i]) {
-            n_children++;
+            childrenCount++;
         }
     }
-    return n_children;
+    return childrenCount;
 }
 //  Conta o número de palavras a partir do nodo, e retorna um número inteiro 
 //  com a quantidade de palavras.
 
-int structures::Trie::n_palavras() {
-    int n_words = 0;
+int structures::Trie::wordCounter() {
+    int wordCount = 0;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         if (children[i]) {
             if (children[i]->leaf) {
-                n_words++;
+                wordCount++;
             } else {
-                n_words += children[i]->n_palavras();
+                wordCount += children[i]->wordCounter();
             }
         }
     }
-    return n_words;
+    return wordCount;
 }

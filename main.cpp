@@ -25,21 +25,20 @@ int main() {
 
     Trie trie;
     string line;
-    int index_count = 0;
+    int indexCount = 0;
 
     while (getline(file, line)) {
 
-        string dic_word = line.substr(1, line.find_first_of(']') - 1);
+        string dicWord = line.substr(1, line.find_first_of(']') - 1);
 
-        trie.inserir(dic_word, index_count, line.length());
+        trie.insert(dicWord, indexCount, line.length());
         
-        index_count += line.length() + 1;
+        indexCount += line.length() + 1;
     }
 
     file.close();
 
     string word;
-    pair<int, int> pair;
     while (1) {
         cin >> word;
 
@@ -47,19 +46,17 @@ int main() {
             break;
         }
 
-        pair = trie.procurar(word);
-        
-        if (pair.first  == 0 && pair.second == 0) {
-            int n = trie.n_prefixo(word);
-            cout << word << " is prefix of " << n << " words" << endl;
-        } else if (pair.first  == -1) {
-            cout << word << " is not prefix" << endl;
+        int count = trie.prefixCounter(word);
+
+        if (count > 0) {
+            cout << word << " is prefix of " << count << " words" << endl;
+
+            if (count == 1) {
+                cout << word << " is at (" << trie.getIndex(word) << "," << trie.getLength(word) << ")" << endl;
+            }
+
         } else {
-            int n = trie.n_prefixo(word);
-            int d = pair.first;
-            int c = pair.second;
-            cout << word << " is prefix of " << n << " words" << endl;
-            cout << word << " is at (" << d << "," << c << ")" << endl;
+            cout << word << " is not prefix" << endl;
         }
     }
     return 0;
